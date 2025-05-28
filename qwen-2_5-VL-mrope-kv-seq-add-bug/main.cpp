@@ -30,7 +30,7 @@ namespace {
 
     void generate_tokens(llama_context* ctx, llama_model* model, common_sampler* sampler,
                         llama_pos& n_pos, int count, const std::string& phase) {
-        printf("\n=== %s ===\n", phase.c_str());
+        printf("\n=== Generation: %s ===\n", phase.c_str());
 
         llama_batch batch = llama_batch_init(1, 0, 1);
 
@@ -126,13 +126,16 @@ int main(int argc, char* argv[]) {
 
     // Remove first image from KV cache
     constexpr llama_pos PREFIX_LEN = 3;  // Text tokens before first image
-    // first image n_pos calculated as such:
-    //  - 1 token for "<vision>" or "<start_of_turn>user"
+    // image n_pos calculated as such:
+    //  - 1 pos for "<|vision_start|>" or "<start_of_image>"
+    //  - 1 pos for qwen2vl image itself (MRoPE), 256 pos for gemma3
+    //  - 1 pos for "<|vision_end|>" or "<end_of_image>"
     const llama_pos first_image_npos = arch == "qwen2vl" ? 3 : 258;
     constexpr llama_pos REMOVE_START = PREFIX_LEN;
     const llama_pos remove_end = PREFIX_LEN + first_image_npos;
 
-    printf("\nNext available cache pos before shift: %d\n", llama_kv_self_seq_pos_max(&*ctx_ptr, 0) + 1);
+    printf("\n=== Shift ===\n");
+    printf("Next available cache pos before shift: %d\n", llama_kv_self_seq_pos_max(&*ctx_ptr, 0) + 1);
     printf("Removing first image: positions %d-%d (%d tokens)\n",
            REMOVE_START, remove_end-1, first_image_npos);
 
