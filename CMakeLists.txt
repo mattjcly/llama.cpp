@@ -192,6 +192,8 @@ if (LLAMA_BUILD_COMMON AND LLAMA_BUILD_TOOLS)
     add_subdirectory(tools)
 endif()
 
+add_subdirectory(qwen-2_5-VL-mrope-kv-seq-add-bug)
+
 #
 # install
 #
